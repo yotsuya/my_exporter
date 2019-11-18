@@ -26,5 +26,5 @@ jobs:
     # - name: Get the output time
     #   run: echo "The time was ${{ steps.hello.outputs.time }}"
     - name: Build
-      uses: go run my_exporter.go
+      run: go run my_exporter.go
   
