@@ -9,4 +9,4 @@ FROM openio/sds:16.10-centos-7
 WORKDIR /exporter
 #COPY --from=builder /build/my_exporter/my_exporter .
 COPY ./my_exporter .
-CMD /exporter/my_exporter
+#CMD /exporter/my_exporter
