@@ -7,8 +7,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      PATH: $HOME/go/bin:$PATH
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-go@v1
@@ -19,5 +17,7 @@ jobs:
     - run: echo $PATH
     - run: go get -u golang.org/x/lint/golint
     - run: golint ./...
+      env:
+        PATH: $HOME/go/bin:$PATH
     - run: go vet ./...
     - run: go build -v .
