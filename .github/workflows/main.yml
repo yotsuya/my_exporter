@@ -16,7 +16,7 @@ jobs:
         go-version: 1.x
     - name: Run lint
       run: |
-        GO111MODULE=off go get golang.org/x/lint/golint
+        GO111MODULE=off GOPATH=$HOME/go go get golang.org/x/lint/golint
         $HOME/go/bin/golint ./...
         go vet ./...
     - name: Build binary
