@@ -4,8 +4,8 @@ on:
     branches:
     - master
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
@@ -21,24 +21,3 @@ jobs:
         go vet ./...
     - name: Build binary
       run: go build -v .
-    - name: Upload binary
-      uses: actions/upload-artifact@v1
-      with:
-        name: build
-        path: my_exporter
-  test:
-    name: Test
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download binary
-      uses: actions/download-artifact@v1
-      with:
-        name: build
-    - name: Check out code
-      uses: actions/checkout@v1
-    - name: Run OpenIO
-      uses: ./.github/actions/openio
-    - run: ./build/my_exporter
-    
-

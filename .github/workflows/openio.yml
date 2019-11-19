@@ -1,0 +1,14 @@
+name: OpenIO
+on:
+  push:
+    branches:
+    - master
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v1
+    - name: Run OpenIO
+      uses: ./.github/actions/openio
