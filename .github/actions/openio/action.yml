@@ -1,0 +1,10 @@
+name: 'OpenIO'
+description: 'Run OpenIO/SDS'
+# inputs:
+# outputs:
+runs:
+  using: 'docker'
+  # env:
+  image: 'docker://openio/sds:16.10'
+  # entrypoint:
+  # args:
