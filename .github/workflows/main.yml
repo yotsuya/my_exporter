@@ -21,3 +21,18 @@ jobs:
         go vet ./...
     - name: Build binary
       run: go build -v .
+    - name: Upload binary
+      uses: actions/upload-artifact@v1
+      with:
+        name: my_exporter
+        path: my_exporter
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download binary
+      uses: actions/download-artifact@v1
+      with:
+        name: my_exporter
+    - run: my_exporter
+
