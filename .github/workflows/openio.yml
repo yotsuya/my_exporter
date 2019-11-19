@@ -11,5 +11,9 @@ jobs:
     - run: docker image ls
     - name: Check out code
       uses: actions/checkout@v1
+    - name: Build binary
+      run: |
+        go build -v .
+        cp ./my_exporter ./.github/actions/openio
     - name: Run OpenIO
       uses: ./.github/actions/openio
