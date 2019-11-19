@@ -14,8 +14,8 @@ jobs:
         go-version: 1.13.4
     - run: env | sort
     - run: which go
-    - run: echo $PATH
     - run: go get -u golang.org/x/lint/golint
+    - run: ls $HOME/go/bin
     - run: golint ./...
       env:
         PATH: $HOME/go/bin:$PATH
