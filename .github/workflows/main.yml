@@ -1,20 +1,23 @@
 name: My Workflow
-
-on: [push]
-
+on:
+  push:
+    branches:
+    - master
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-go@v1
+    - name: Check out code
+      uses: actions/checkout@v1
+    - name: Set up Go
+      uses: actions/setup-go@v1
       with:
-        go-version: 1.13.4
-    - run: env | sort
-    - run: go get -u golang.org/x/lint/golint
-    - run: $HOME/go/bin/golint ./...
-    - run: go vet ./...
-    - run: go build -v .
-    - run: ./my_exporter
+        go-version: 1.x
+    - name: Run lint
+      run: |
+        GO111MODULE=off go get golang.org/x/lint/golint
+        $HOME/go/bin/golint ./...
+        go vet ./...
+    - name: Build binary
+      run: go build -v .
