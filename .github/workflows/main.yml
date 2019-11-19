@@ -35,5 +35,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: my_exporter
+    - name: Run OpenIO
+      uses: ./.github/actions/openio
     - run: ./my_exporter
+    
 
