@@ -28,6 +28,7 @@ jobs:
         path: my_exporter
   test:
     name: Test
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Download binary
