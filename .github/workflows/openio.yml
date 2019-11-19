@@ -8,6 +8,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+    - run: docker help
     - name: Check out code
       uses: actions/checkout@v1
     - name: Run OpenIO
