@@ -35,6 +35,8 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: build
+    - name: Check out code
+      uses: actions/checkout@v1
     - name: Run OpenIO
       uses: ./.github/actions/openio
     - run: ./build/my_exporter
