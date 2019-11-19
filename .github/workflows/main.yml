@@ -24,7 +24,7 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v1
       with:
-        name: my_exporter
+        name: build
         path: my_exporter
   test:
     name: Test
@@ -34,9 +34,9 @@ jobs:
     - name: Download binary
       uses: actions/download-artifact@v1
       with:
-        name: my_exporter
+        name: build
     - name: Run OpenIO
       uses: ./.github/actions/openio
-    - run: ./my_exporter
+    - run: ./build/my_exporter
     
 
