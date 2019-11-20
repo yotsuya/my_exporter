@@ -5,7 +5,6 @@ description: 'Run OpenIO/SDS'
 runs:
   using: 'docker'
   # env:
-  # image: 'docker://openio/sds:16.10-centos-7'
   image: 'Dockerfile'
   # entrypoint:
   # args:

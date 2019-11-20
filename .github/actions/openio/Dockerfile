@@ -1,14 +1,9 @@
-#FROM golang:alpine AS builder
-#WORKDIR /build
-#RUN apk add --no-cache git && \
-#    git clone https://github.com/yotsuya/my_exporter && \
-#    cd my_exporter && \
-#    go build -v .
-
+# Container image that runs your code
 FROM openio/sds:16.10-centos-7
-WORKDIR /exporter
-#COPY --from=builder /build/my_exporter/my_exporter .
-COPY ./my_exporter .
-COPY ./entrypoint.sh .
 
-CMD /exporter/entrypoint.sh
+# Copies your code file from your action repository to the filesystem path `/` of the container
+COPY entrypoint.sh /entrypoint.sh
+COPY my_exporter /my_exporter
+
+# Code file to execute when the docker container starts up (`entrypoint.sh`)
+ENTRYPOINT ["/entrypoint.sh"]
