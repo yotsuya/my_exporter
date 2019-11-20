@@ -5,9 +5,8 @@ set -x
 PID=$!
 
 # TODO: openioの起動完了をチェックする方法調べる
-sleep 60
+sleep 45
 
-date
 /my_exporter
 
 # OpenIOコンテナイメージのバージョンにもよるが、単にopenio-docker-init.shをkillするだけでは
