@@ -14,5 +14,5 @@ jobs:
       run: |
         go build -v .
         cp ./my_exporter ./.github/actions/openio
-    - name: Run OpenIO
+    - name: Run test with OpenIO
       uses: ./.github/actions/openio
