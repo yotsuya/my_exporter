@@ -26,7 +26,7 @@ snapshot:
   name_template: '{{ .Tag }}'
 
 release:
-  name_template: '{{ replace .Tag "v" "" }} / {{ time "2019-12-31" }}'
+  name_template: '{{ replace .Tag "v" "" }} / {{ time "2006-01-02" }}'
 
 changelog:
   sort: asc
