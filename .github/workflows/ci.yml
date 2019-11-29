@@ -26,6 +26,7 @@ jobs:
 #         fi
 #       run: GOPATH=$HOME/go PATH=$PATH:$GOPATH/bin make setup
       run: env|sort
+    - run: go env|sort
 
 #     - name: Build
 #       run: go build -v .
