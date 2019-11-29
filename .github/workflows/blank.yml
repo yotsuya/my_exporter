@@ -11,15 +11,10 @@ jobs:
 #     - uses: actions/checkout@v1
     - name: Run a one-line script
       run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+#     - name: Run a multi-line script
+#       run: |
+#         echo Add other actions to build,
+#         echo test, and deploy your project.
 
-    - name: Env Check
-      run: |
-        echo $PATH
-        env|sort
-      env:
-        GOPATH: $HOME/go
-#         PATH: $PATH:$GOPATH/bin
+    - name: Dump environment variables
+      run: env|sort
