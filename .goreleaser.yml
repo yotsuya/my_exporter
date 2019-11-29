@@ -3,11 +3,11 @@ builds:
     ldflags:
     # Embed build metadata into the binary.
     # See https://godoc.org/github.com/prometheus/common/version
-    - -X 'github.com/prometheus/common/version.Version={{ .Version }}'
-    - -X 'github.com/prometheus/common/version.Revision={{ .FullCommit }}'
-    - -X 'github.com/prometheus/common/version.Branch={{ .Env.BRANCH }}'
-    - -X 'github.com/prometheus/common/version.BuildUser={{ .Env.BUILD_USER }}'
-    - -X 'github.com/prometheus/common/version.BuildDate={{ .Env.BUILD_DATE }}'
+    - -X "github.com/prometheus/common/version.Version={{ .Version }}"
+    - -X "github.com/prometheus/common/version.Revision={{ .FullCommit }}"
+    - -X "github.com/prometheus/common/version.Branch={{ .Env.BRANCH }}"
+    - -X "github.com/prometheus/common/version.BuildUser={{ .Env.BUILD_USER }}"
+    - -X "github.com/prometheus/common/version.BuildDate={{ .Env.BUILD_DATE }}"
     goos:
     - linux
     # - darwin
@@ -16,17 +16,17 @@ builds:
 
 archives:
   -
-    name_template: "{{ .ProjectName }}-{{ .Version }}.{{ .Os }}-{{ .Arch }}"
+    name_template: '{{ .ProjectName }}-{{ .Version }}.{{ .Os }}-{{ .Arch }}'
     wrap_in_directory: true
 
 checksum:
   name_template: sha256sums.txt
 
 snapshot:
-  name_template: "{{ .Tag }}"
+  name_template: '{{ .Tag }}'
 
 release:
-  name_template: "{{ .Tag }} / 2019-10-10"
+  name_template: '{{ replace .Tag "v" "" }} / {{ time "2019-12-31" }}'
 
 changelog:
   sort: asc
