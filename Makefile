@@ -56,11 +56,11 @@ dist:
 
 .PHONY: echo_branch echo_build_user echo_build_date
 echo_branch:
-	echo $(BRANCH)
+	@echo $(BRANCH)
 echo_build_user:
-	echo $(BUILD_USER)
+	@echo $(BUILD_USER)
 echo_build_date:
-	echo $(BUILD_DATE)
+	@echo $(BUILD_DATE)
 
 
 # Shortcuts to control the development container

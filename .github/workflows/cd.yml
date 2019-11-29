@@ -24,7 +24,8 @@ jobs:
         echo "::set-env name=BRANCH::$(make echo_branch)"
         echo "::set-env name=BUILD_USER::$(make echo_build_user)"
         echo "::set-env name=BUILD_DATE::$(make echo_build_date)"
-        env|sort
+
+    - run:  env|sort
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
