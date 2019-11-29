@@ -1,6 +1,7 @@
 NAME := my_exporter
 sources := $(shell find . -type d -name tmp -prune -o -type f -name '*.go' -print)
 GOBIN := $(shell go env GOPATH)/bin
+export CGO_ENABLED := 0
 
 $(NAME): $(sources)
 	go build -v -o $@
