@@ -25,8 +25,7 @@ jobs:
 #             dep ensure
 #         fi
       run: PATH=$PATH:$(go env GOPATH)/bin make setup
-#     - run: go env|sort
 
-#     - name: Build
+    - name: Build
 #       run: go build -v .
-#       run: make all
+      run: PATH=$PATH:$(go env GOPATH)/bin make all
