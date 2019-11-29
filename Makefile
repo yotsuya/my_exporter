@@ -59,7 +59,7 @@ clean:
 full-test:
 	@echo "Not implemented yet."
 
-GORELEASER_FLAGS := --rm-dist
+GORELEASER_FLAGS := --rm-dist --skip-publish
 .PHONY: dist
 dist:
 	goreleaser $(GORELEASER_FLAGS)
