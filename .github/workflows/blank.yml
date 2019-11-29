@@ -1,7 +1,7 @@
 name: Blank
 
-# on: [push]
-on: repository_dispatch
+on: [push]
+# on: repository_dispatch
 
 jobs:
   build:
@@ -16,3 +16,5 @@ jobs:
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+    - run: echo "::set-env name=action_state::yellow"
+    - run: echo $action_state
