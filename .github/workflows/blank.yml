@@ -22,4 +22,4 @@ jobs:
         env|sort
       env:
         GOPATH: $HOME/go
-        PATH: $PATH:$GOPATH/bin
+#         PATH: $PATH:$GOPATH/bin
