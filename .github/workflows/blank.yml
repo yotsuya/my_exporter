@@ -18,3 +18,5 @@ jobs:
         echo test, and deploy your project.
     - run: echo "::set-env name=action_state::yellow"
     - run: echo $action_state
+    - run: echo "::set-env name=action_date::$(date)"
+    - run: echo $action_date
