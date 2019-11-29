@@ -5,14 +5,14 @@ GOBIN := $(shell go env GOPATH)/bin
 
 # Embed build metadata into the binary.
 # see https://godoc.org/github.com/prometheus/common/version
-VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null)
-REVISION := $(shell git rev-parse HEAD 2>/dev/null)
-BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+export VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null)
+export REVISION := $(shell git rev-parse HEAD 2>/dev/null)
+export BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
 GIT_USER_NAME := $(shell git config user.name 2>/dev/null)
 GIT_USER_EMAIL := $(shell git config user.email 2>/dev/null)
 GIT_USER := $(strip $(GIT_USER_NAME) $(if $(GIT_USER_EMAIL),<$(GIT_USER_EMAIL)>,))
-BUILD_USER := $(if $(GIT_USER),$(GIT_USER),$(shell whoami)@$(shell hostname))
-BUILD_DATE := $(shell date +"%Y%m%d-%H:%M:%S")
+export BUILD_USER := $(if $(GIT_USER),$(GIT_USER),$(shell whoami)@$(shell hostname))
+export BUILD_DATE := $(shell date +"%Y%m%d-%H:%M:%S")
 LDFLAGS := \
 	-X 'github.com/prometheus/common/version.Version=$(VERSION)' \
 	-X 'github.com/prometheus/common/version.Revision=$(REVISION)' \
@@ -59,10 +59,10 @@ clean:
 full-test:
 	@echo "Not implemented yet."
 
-# TODO: create target for release build(linux/amd64)
+GORELEASER_FLAGS := --rm-dist
 .PHONY: dist
 dist:
-	@echo "Not implemented yet."
+	goreleaser $(GORELEASER_FLAGS)
 
 # TODO: fail if the environment is not linux/amd64
 .PHONY: install
