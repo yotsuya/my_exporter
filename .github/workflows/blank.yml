@@ -17,7 +17,9 @@ jobs:
         echo test, and deploy your project.
 
     - name: Env Check
-      run: env|sort
+      run: |
+        echo $PATH
+        env|sort
       env:
         GOPATH: $HOME/go
         PATH: $PATH:$GOPATH/bin
