@@ -51,7 +51,7 @@ export BUILD_USER := $(if $(git_user),$(git_user),$(shell whoami)@$(shell hostna
 export BUILD_DATE := $(shell date +"%Y%m%d-%H:%M:%S")
 
 .PHONY: dist
-dist: GORELEASER_FLAGS ?= --rm-dist --skip-publish
+dist: GORELEASER_FLAGS ?= --snapshot --skip-publish --rm-dist
 dist:
 	goreleaser $(GORELEASER_FLAGS)
 

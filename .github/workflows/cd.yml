@@ -25,12 +25,9 @@ jobs:
         echo "::set-env name=BUILD_USER::$(make echo_build_user)"
         echo "::set-env name=BUILD_DATE::$(make echo_build_date)"
 
-    - run:  env|sort
-
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
         args: release --rm-dist
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

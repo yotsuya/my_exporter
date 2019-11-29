@@ -9,7 +9,6 @@ builds:
     - -X 'github.com/prometheus/common/version.BuildUser={{ .Env.BUILD_USER }}'
     - -X 'github.com/prometheus/common/version.BuildDate={{ .Env.BUILD_DATE }}'
     goos:
-    - darwin
     - linux
     goarch:
     - amd64
