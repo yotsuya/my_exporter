@@ -1,6 +1,8 @@
 NAME := my_exporter
 sources := $(shell find . -type d -name tmp -prune -o -type f -name '*.go' -print)
 
+GOBIN := $(shell go env GOPATH)/bin
+
 # Embed build metadata into the binary.
 # see https://godoc.org/github.com/prometheus/common/version
 VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null)
@@ -29,7 +31,7 @@ check: lint vet test
 
 .PHONY: lint
 lint:
-	golint ./...
+	$(GOBIN)/golint ./...
 
 .PHONY: vet
 vet:

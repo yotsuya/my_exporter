@@ -24,8 +24,8 @@ jobs:
 #             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 #             dep ensure
 #         fi
-      run: PATH=$PATH:$(go env GOPATH)/bin make setup
+      run: make setup
 
     - name: Build
 #       run: go build -v .
-      run: PATH=$PATH:$(go env GOPATH)/bin make all
+      run: make all
