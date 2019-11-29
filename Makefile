@@ -42,7 +42,8 @@ clean:
 	rm -f $(NAME)
 
 # See .goreleaser.yml for what these means
-export BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+git_branch := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+export BRANCH := $(if $(git_branch),$(git_branch),HEAD)
 git_user_name := $(shell git config user.name 2>/dev/null)
 git_user_email := $(shell git config user.email 2>/dev/null)
 git_user := $(strip $(git_user_name) $(if $(git_user_email),<$(git_user_email)>,))
