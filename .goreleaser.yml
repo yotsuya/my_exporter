@@ -1,26 +1,13 @@
-# GoReleaserの使用について
-#
-# リリースは、
-# - バイナリのビルドは細かな制御（バージョン情報埋め込み等）をしたい
-# - リリースするバイナリはテストをパスしたものと同一のものを配布したい
-# - GitHubでリリースする際の面倒な処理はGoReleaserで自動化したい
-# という要件を満たすため、以下のようなステップで実施する
-# 1. 自作Makefileを使用してバイナリをビルド
-# 2. テストを実行
-# 3. 1で作ったバイナリをGoReleaserでリリース
-# GoReleaser単体で全部なんとか良い感じにできないか調べたが、ビルドに独自のコマンドを使用できないようであり、
-# また、ビルドステップをスキップする方法がわからないので、止むを得ず、ダミーのビルド処理をした後、
-# 先にビルドしておいたバイナリでコピーするという感じにしている
 builds:
   -
     ldflags:
-    #  - -X 'github.com/prometheus/common/version.Version={{ .Env.VERSION }}'
-     - -X 'github.com/prometheus/common/version.Version={{ .Version }}'
-    #  - -X 'github.com/prometheus/common/version.Revision={{ .Env.REVISION }}'
-     - -X 'github.com/prometheus/common/version.Revision={{ .FullCommit }}'
-     - -X 'github.com/prometheus/common/version.Branch={{ .Env.BRANCH }}'
-     - -X 'github.com/prometheus/common/version.BuildUser={{ .Env.BUILD_USER }}'
-     - -X 'github.com/prometheus/common/version.BuildDate={{ .Env.BUILD_DATE }}'
+    # Embed build metadata into the binary.
+    # See https://godoc.org/github.com/prometheus/common/version
+    - -X 'github.com/prometheus/common/version.Version={{ .Version }}'
+    - -X 'github.com/prometheus/common/version.Revision={{ .FullCommit }}'
+    - -X 'github.com/prometheus/common/version.Branch={{ .Env.BRANCH }}'
+    - -X 'github.com/prometheus/common/version.BuildUser={{ .Env.BUILD_USER }}'
+    - -X 'github.com/prometheus/common/version.BuildDate={{ .Env.BUILD_DATE }}'
     goos:
     - darwin
     - linux

@@ -18,6 +18,13 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
 
+    - name: Export version information to environment variables
+      run: |
+        echo "::set-env name=BRANCH::$(make echo_branch)"
+        echo "::set-env name=BUILD_USER::$(make echo_build_user)"
+        echo "::set-env name=BUILD_DATE::$(make echo_build_date)"
+        env|sort
+
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:

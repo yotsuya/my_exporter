@@ -1,27 +1,9 @@
 NAME := my_exporter
 sources := $(shell find . -type d -name tmp -prune -o -type f -name '*.go' -print)
-
 GOBIN := $(shell go env GOPATH)/bin
 
-# Embed build metadata into the binary.
-# see https://godoc.org/github.com/prometheus/common/version
-export VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null)
-export REVISION := $(shell git rev-parse HEAD 2>/dev/null)
-export BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
-GIT_USER_NAME := $(shell git config user.name 2>/dev/null)
-GIT_USER_EMAIL := $(shell git config user.email 2>/dev/null)
-GIT_USER := $(strip $(GIT_USER_NAME) $(if $(GIT_USER_EMAIL),<$(GIT_USER_EMAIL)>,))
-export BUILD_USER := $(if $(GIT_USER),$(GIT_USER),$(shell whoami)@$(shell hostname))
-export BUILD_DATE := $(shell date +"%Y%m%d-%H:%M:%S")
-LDFLAGS := \
-	-X 'github.com/prometheus/common/version.Version=$(VERSION)' \
-	-X 'github.com/prometheus/common/version.Revision=$(REVISION)' \
-	-X 'github.com/prometheus/common/version.Branch=$(BRANCH)' \
-	-X 'github.com/prometheus/common/version.BuildUser=$(BUILD_USER)' \
-	-X 'github.com/prometheus/common/version.BuildDate=$(BUILD_DATE)'
-
 $(NAME): $(sources)
-	go build -v -ldflags "$(LDFLAGS)" -o $@
+	go build -v -o $@
 
 .PHONY: all
 all: check $(NAME)
@@ -41,6 +23,11 @@ vet:
 test:
 	go test -v ./...
 
+# TODO: create target for test with openio container
+.PHONY: full-test
+full-test:
+	@echo "Not implemented yet."
+
 .PHONY: setup
 setup: deps
 	go get golang.org/x/lint/golint
@@ -54,20 +41,27 @@ clean:
 	go clean
 	rm -f $(NAME)
 
-# TODO: create target for test with openio container
-.PHONY: full-test
-full-test:
-	@echo "Not implemented yet."
+# See .goreleaser.yml for what these means
+export BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+git_user_name := $(shell git config user.name 2>/dev/null)
+git_user_email := $(shell git config user.email 2>/dev/null)
+git_user := $(strip $(git_user_name) $(if $(git_user_email),<$(git_user_email)>,))
+export BUILD_USER := $(if $(git_user),$(git_user),$(shell whoami)@$(shell hostname))
+export BUILD_DATE := $(shell date +"%Y%m%d-%H:%M:%S")
 
-GORELEASER_FLAGS := --rm-dist --skip-publish
 .PHONY: dist
+dist: GORELEASER_FLAGS ?= --rm-dist --skip-publish
 dist:
 	goreleaser $(GORELEASER_FLAGS)
 
-# TODO: fail if the environment is not linux/amd64
-.PHONY: install
-install:
-	go install -ldflags "$(LDFLAGS)"
+.PHONY: echo_branch echo_build_user echo_build_date
+echo_branch:
+	echo $(BRANCH)
+echo_build_user:
+	echo $(BUILD_USER)
+echo_build_date:
+	echo $(BUILD_DATE)
+
 
 # Shortcuts to control the development container
 DEV_TARGETS = start stop exec
