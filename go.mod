@@ -9,8 +9,10 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/prometheus/client_golang v1.2.1
 	github.com/prometheus/common v0.7.0
-	github.com/prometheus/procfs v0.0.7 // indirect
-	golang.org/x/sys v0.0.0-20191120155948-bd437916bb0e // indirect
+	github.com/prometheus/procfs v0.0.8
+	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
+	golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9 // indirect
+	golang.org/x/tools v0.0.0-20191127201027-ecd32218bd7f // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
