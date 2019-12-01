@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - "**"
+    # Don't run on `git push --tags`
     tags-ignore:
     - "v[0-9]+.[0-9]+.[0-9]+"
 

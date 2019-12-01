@@ -2,7 +2,7 @@ PROJECT_DIR := $(shell dirname $(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
 NAME := $(shell basename $(PROJECT_DIR))
 IMAGE := local/$(NAME):dev
 CONTAINER := $(NAME).dev
-PORT := 9999
+PORT := 11010
 WORK_DIR := /work
 
 .PHONY: build
