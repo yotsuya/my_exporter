@@ -24,10 +24,9 @@ vet:
 test:
 	go test -v ./...
 
-# TODO: create target for test with openio container
-.PHONY: full-test
-full-test:
-	@echo "Not implemented yet."
+.PHONY: long-test
+long-test:
+	cd ./test && make test
 
 .PHONY: setup
 setup: deps
