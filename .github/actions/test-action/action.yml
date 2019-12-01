@@ -1,5 +1,5 @@
-name: 'Integration Test'
-description: 'Integration Test'
+name: 'Test'
+description: 'Test'
 runs:
   using: 'docker'
   image: '../../../test/Dockerfile'
