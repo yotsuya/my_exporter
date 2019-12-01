@@ -1,5 +1,5 @@
-name: 'Test'
-description: 'Test with OpenIO container'
+name: 'Integration Test'
+description: 'Integration Test'
 runs:
   using: 'docker'
   image: '../../../test/Dockerfile'
