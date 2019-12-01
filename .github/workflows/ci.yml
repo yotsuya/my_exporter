@@ -25,7 +25,7 @@ jobs:
     - name: Build
       run: make all
 
-    - run: cp ./my_exporter ./.github/actions/test
+    - run: cp ./my_exporter ./test
 
     - name: Run integration test
       uses: ./.github/actions/test
