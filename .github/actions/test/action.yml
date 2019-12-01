@@ -2,4 +2,4 @@ name: 'Test'
 description: 'Test with OpenIO container'
 runs:
   using: 'docker'
-  image: 'test/Dockerfile'
+  image: '../../../test/Dockerfile'
