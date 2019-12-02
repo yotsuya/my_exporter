@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/go-kit/kit/log"
@@ -27,25 +31,29 @@ var (
 
 	up = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "up"),
-		"Was the last check of OpenIO successful.",
+		"Was the last run of gridinit_cmd successful.",
 		nil, nil,
+	)
+	procUp = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "process_up"),
+		"Status of the process (1 = UP, 0 = DOWN).",
+		[]string{"pid", "group"}, nil,
 	)
 	vsize = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "process_virtual_memory_bytes"),
 		"Virtual memory size in bytes.",
-		[]string{"pid"}, nil,
+		[]string{"pid", "group"}, nil,
 	)
 	rss = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "process_resident_memory_bytes"),
 		"Resident memory size in bytes.",
-		[]string{"pid"}, nil,
+		[]string{"pid", "group"}, nil,
 	)
 )
 
 // Exporter collects OpenIO stats from the `*** TBD ***` and exports them using
 // the prometheus metrics package.
 type Exporter struct {
-	// TODO: プロセスを特定するための何かを追加
 	mutex  sync.RWMutex
 	logger log.Logger
 }
@@ -64,30 +72,64 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	allProcs, err := procfs.AllProcs()
-	if err != nil {
-		level.Error(e.logger).Log("msg", "AllProcs()", "err", err)
-	}
-	// TODO: OIOプロセスのみに限定する
+	output, _ := exec.Command("gridinit_cmd", "status").Output()
+	// We want to use the exit code of `gridinit_cmd` as upVal, but we can't.
+	// Because the exit code of `gridinit_cmd status` will be:
+	// - when OpenIO processes are UP and cmd ends normally => 0
+	// - when OpenIO processes are DOWN and cmd ends normally => 1
+	// - when cmd ends abnormally => 0
+	// So, even if one status line is returned, 1.0 is set to upVal.
+	upVal := 0.0
 
-	for _, p := range allProcs {
-		// p, err := procfs.NewProc(proc.PID)
-		// if err != nil {
-		// 	// c.reportError(ch, nil, err)
-		// 	level.Error(e.logger).Log("msg", "SOMETHING BAD!", "err", err)
-		// 	return
-		// }
+	scanner := bufio.NewScanner(strings.NewReader(string(output)))
+	for scanner.Scan() {
+		input := scanner.Text()
+		var key, status, pid, group string
 
-		if stat, err := p.Stat(); err == nil {
-			ch <- prometheus.MustNewConstMetric(vsize, prometheus.GaugeValue, float64(stat.VirtualMemory()), strconv.Itoa(p.PID))
-			ch <- prometheus.MustNewConstMetric(rss, prometheus.GaugeValue, float64(stat.ResidentMemory()), strconv.Itoa(p.PID))
-		} else {
-			level.Error(e.logger).Log("msg", "Stat()", "err", err)
+		fmt.Sscan(input, &key, &status, &pid, &group)
+		if key == "KEY" {
+			// skip header line
+			continue
 		}
+
+		upVal = 1.0
+
+		procUpVal := 1.0
+		if status != "UP" {
+			procUpVal = 0
+			if status != "DOWN" {
+				level.Warn(e.logger).Log("msg", "Unknown process status", "line", input)
+			}
+		}
+		ch <- prometheus.MustNewConstMetric(procUp, prometheus.GaugeValue, procUpVal, pid, group)
+
+		nPid, err := strconv.Atoi(pid)
+		if err != nil {
+			level.Warn(e.logger).Log("msg", "Invalid PID", "line", input)
+			continue
+		}
+		if nPid < 1 {
+			// PID is -1(or 0) when process status is "DOWN"
+			continue
+		}
+
+		proc, err := procfs.NewProc(nPid)
+		if err != nil {
+			level.Warn(e.logger).Log("msg", "Error `procfs.NewProc()`", "err", err, "pid", pid)
+			continue
+		}
+
+		stat, err := proc.Stat()
+		if err != nil {
+			level.Warn(e.logger).Log("msg", "Error `proc.Stat()`", "err", err, "pid", pid)
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(vsize, prometheus.GaugeValue, float64(stat.VirtualMemory()), pid, group)
+		ch <- prometheus.MustNewConstMetric(rss, prometheus.GaugeValue, float64(stat.ResidentMemory()), pid, group)
 	}
 
-	// TODO: OIOプロセスが見つかったかどうかを返すようにする
-	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, 1)
+	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, upVal)
 }
 
 // NewExporter returns an initialized exporter.
