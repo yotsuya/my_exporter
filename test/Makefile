@@ -6,9 +6,16 @@ IMAGE := local/$(NAME):test
 test: build run
 
 .PHONY: build
-build:
+build: $(NAME)
 	docker build -t $(IMAGE) .
 
 .PHONY: run
 run:
 	docker run -it --rm $(IMAGE)
+
+.PHONY: clean
+clean:
+	rm -f $(NAME)
+
+$(NAME):
+	cd .. && make clean && GOOS=linux GOARCH=amd64 make $@ && cp $@ ./test
