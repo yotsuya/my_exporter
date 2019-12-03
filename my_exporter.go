@@ -26,9 +26,6 @@ const (
 )
 
 var (
-	listenAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":11010").String()
-	metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
-
 	up = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "up"),
 		"Was the last run of gridinit_cmd successful.",
@@ -73,35 +70,42 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer e.mutex.Unlock()
 
 	output, _ := exec.Command("gridinit_cmd", "status").Output()
-	// We want to use the exit code of `gridinit_cmd` as upVal, but we can't.
-	// Because the exit code of `gridinit_cmd status` will be:
-	// - when OpenIO processes are UP and cmd ends normally => 0
-	// - when OpenIO processes are DOWN and cmd ends normally => 1
-	// - when cmd ends abnormally => 0
-	// So, even if one status line is returned, 1.0 is set to upVal.
+	// Since the exit code of gridinit_cmd may return 0 even if execution fails,
+	// it does not make sense to check for errors.
+	// ```
+	// $ gridinit_cmd status
+	// Connection to UNIX socket [/run/gridinit/gridinit.sock] failed : Permission denied
+	// KEY  STATUS      PID GROUP
+	// $ echo $?
+	// 0
+	// ```
+
 	upVal := 0.0
 
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
 		input := scanner.Text()
-		var key, status, pid, group string
+		level.Debug(e.logger).Log("input", input)
 
+		var key, status, pid, group string
 		fmt.Sscan(input, &key, &status, &pid, &group)
 		if key == "KEY" {
 			// skip header line
 			continue
 		}
 
+		// If at least one process information can be obtained, the result of gridinit_cmd
+		// is considered successful.
 		upVal = 1.0
 
-		procUpVal := 1.0
-		if status != "UP" {
-			procUpVal = 0
+		if status == "UP" {
+			ch <- prometheus.MustNewConstMetric(procUp, prometheus.GaugeValue, 1.0, pid, group)
+		} else {
+			ch <- prometheus.MustNewConstMetric(procUp, prometheus.GaugeValue, 0.0, pid, group)
 			if status != "DOWN" {
 				level.Warn(e.logger).Log("msg", "Unknown process status", "line", input)
 			}
 		}
-		ch <- prometheus.MustNewConstMetric(procUp, prometheus.GaugeValue, procUpVal, pid, group)
 
 		nPid, err := strconv.Atoi(pid)
 		if err != nil {
@@ -109,7 +113,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 		if nPid < 1 {
-			// PID is -1(or 0) when process status is "DOWN"
+			// If the STATUS is "DOWN", the PID will be -1 or 0.
 			continue
 		}
 
@@ -144,6 +148,17 @@ func init() {
 }
 
 func main() {
+	var (
+		listenAddress = kingpin.Flag(
+			"web.listen-address",
+			"Address on which to expose metrics and web interface.",
+		).Default(":11010").String()
+		metricsPath = kingpin.Flag(
+			"web.telemetry-path",
+			"Path under which to expose metrics.",
+		).Default("/metrics").String()
+	)
+
 	promlogConfig := &promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
 	kingpin.Version(version.Print("openio_exporter"))
