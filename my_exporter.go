@@ -69,26 +69,18 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 
-	output, _ := exec.Command("gridinit_cmd", "status").Output()
-	// Since the exit code of gridinit_cmd may return 0 even if execution fails,
-	// it does not make sense to check for errors.
-	// ```
-	// $ gridinit_cmd status
-	// Connection to UNIX socket [/run/gridinit/gridinit.sock] failed : Permission denied
-	// KEY  STATUS      PID GROUP
-	// $ echo $?
-	// 0
-	// ```
-
 	upVal := 0.0
 
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
+	scanner := bufio.NewScanner(strings.NewReader(runGridInitCmd()))
 	for scanner.Scan() {
-		input := scanner.Text()
-		level.Debug(e.logger).Log("input", input)
+		line := scanner.Text()
+		level.Debug(e.logger).Log("line", line)
 
-		var key, status, pid, group string
-		fmt.Sscan(input, &key, &status, &pid, &group)
+		key, status, pid, group, err := parseStatusLine(line)
+		if err != nil {
+			level.Warn(e.logger).Log("msg", "Invalid status line", "err", err, "line", line)
+			continue
+		}
 		if key == "KEY" {
 			// skip header line
 			continue
@@ -103,13 +95,13 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		} else {
 			ch <- prometheus.MustNewConstMetric(procUp, prometheus.GaugeValue, 0.0, pid, group)
 			if status != "DOWN" {
-				level.Warn(e.logger).Log("msg", "Unknown process status", "line", input)
+				level.Warn(e.logger).Log("msg", "Unknown process status", "line", line)
 			}
 		}
 
 		nPid, err := strconv.Atoi(pid)
 		if err != nil {
-			level.Warn(e.logger).Log("msg", "Invalid PID", "line", input)
+			level.Warn(e.logger).Log("msg", "Invalid PID", "line", line)
 			continue
 		}
 		if nPid < 1 {
@@ -134,6 +126,25 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, upVal)
+}
+
+func runGridInitCmd() string {
+	output, _ := exec.Command("gridinit_cmd", "status").Output()
+	// Since the exit code of gridinit_cmd may return 0 even if execution fails,
+	// it does not make sense to check for errors.
+	// ```
+	// $ gridinit_cmd status
+	// Connection to UNIX socket [/run/gridinit/gridinit.sock] failed : Permission denied
+	// KEY  STATUS      PID GROUP
+	// $ echo $?
+	// 0
+	// ```
+	return string(output)
+}
+
+func parseStatusLine(line string) (key, status, pid, group string, err error) {
+	_, err = fmt.Sscan(line, &key, &status, &pid, &group)
+	return key, status, pid, group, err
 }
 
 // NewExporter returns an initialized exporter.
