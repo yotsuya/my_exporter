@@ -51,14 +51,17 @@ var (
 // Exporter collects OpenIO stats from the `*** TBD ***` and exports them using
 // the prometheus metrics package.
 type Exporter struct {
-	mutex  sync.RWMutex
-	logger log.Logger
+	mutex                sync.RWMutex
+	logger               log.Logger
+	runGridInitCmdStatus func() string
+	getProcStat          func(int) (ProcStat, error)
 }
 
 // Describe describes all the metrics exported by the OpenIO exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- up
+	ch <- procUp
 	ch <- vsize
 	ch <- rss
 }
@@ -71,7 +74,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	upVal := 0.0
 
-	scanner := bufio.NewScanner(strings.NewReader(runGridInitCmd()))
+	scanner := bufio.NewScanner(strings.NewReader(e.runGridInitCmdStatus()))
 	for scanner.Scan() {
 		line := scanner.Text()
 		level.Debug(e.logger).Log("line", line)
@@ -109,15 +112,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		proc, err := procfs.NewProc(nPid)
+		stat, err := e.getProcStat(nPid)
 		if err != nil {
-			level.Warn(e.logger).Log("msg", "Error `procfs.NewProc()`", "err", err, "pid", pid)
-			continue
-		}
-
-		stat, err := proc.Stat()
-		if err != nil {
-			level.Warn(e.logger).Log("msg", "Error `proc.Stat()`", "err", err, "pid", pid)
+			level.Warn(e.logger).Log("msg", "Error `getProcStat()`", "err", err, "pid", pid)
 			continue
 		}
 
@@ -128,7 +125,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, upVal)
 }
 
-func runGridInitCmd() string {
+func runGridInitCmdStatus() string {
 	output, _ := exec.Command("gridinit_cmd", "status").Output()
 	// Since the exit code of gridinit_cmd may return 0 even if execution fails,
 	// it does not make sense to check for errors.
@@ -142,15 +139,33 @@ func runGridInitCmd() string {
 	return string(output)
 }
 
+// ProcStat provides status information about the process.
+type ProcStat interface {
+	CPUTime() float64
+	VirtualMemory() uint
+	ResidentMemory() int
+	StartTime() (float64, error)
+}
+
+func getProcStat(pid int) (ProcStat, error) {
+	proc, err := procfs.NewProc(pid)
+	if err != nil {
+		return procfs.ProcStat{}, err
+	}
+	return proc.Stat()
+}
+
 func parseStatusLine(line string) (key, status, pid, group string, err error) {
 	_, err = fmt.Sscan(line, &key, &status, &pid, &group)
 	return key, status, pid, group, err
 }
 
 // NewExporter returns an initialized exporter.
-func NewExporter(logger log.Logger) (*Exporter, error) {
+func NewExporter(logger log.Logger, runGridInitCmdStatus func() string, getProcStat func(int) (ProcStat, error)) (*Exporter, error) {
 	return &Exporter{
-		logger: logger,
+		logger:               logger,
+		runGridInitCmdStatus: runGridInitCmdStatus,
+		getProcStat:          getProcStat,
 	}, nil
 }
 
@@ -180,7 +195,7 @@ func main() {
 	level.Info(logger).Log("msg", "Starting openio_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
-	exporter, err := NewExporter(logger)
+	exporter, err := NewExporter(logger, runGridInitCmdStatus, getProcStat)
 	if err != nil {
 		level.Error(logger).Log("msg", "Error creating an exporter", "err", err)
 		os.Exit(1)
