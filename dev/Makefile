@@ -21,8 +21,8 @@ start:
 stop:
 	docker stop $(CONTAINER)
 
-.PHONY: exec
-exec:
+.PHONY: attach exec
+attach exec:
 	docker exec -it $(CONTAINER) bash
 
 .PHONY: rm

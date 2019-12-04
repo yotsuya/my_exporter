@@ -65,7 +65,7 @@ echo_build_date:
 
 
 # Shortcuts to control the development container
-DEV_TARGETS = start stop exec
+DEV_TARGETS = start stop attach exec
 .PHONY: $(DEV_TARGETS)
 $(DEV_TARGETS):
 	cd ./dev && make $@
