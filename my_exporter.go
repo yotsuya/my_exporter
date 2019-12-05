@@ -36,6 +36,11 @@ var (
 		"Status of the process (1 = UP, 0 = DOWN).",
 		[]string{"pid", "group"}, nil,
 	)
+	cpuTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "process_cpu_seconds_total"),
+		"Total user and system CPU time spent in seconds.",
+		[]string{"pid", "group"}, nil,
+	)
 	vsize = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "process_virtual_memory_bytes"),
 		"Virtual memory size in bytes.",
@@ -44,6 +49,11 @@ var (
 	rss = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "process_resident_memory_bytes"),
 		"Resident memory size in bytes.",
+		[]string{"pid", "group"}, nil,
+	)
+	startTime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "process_start_time_seconds"),
+		"Start time of the process since unix epoch in seconds.",
 		[]string{"pid", "group"}, nil,
 	)
 )
@@ -62,8 +72,10 @@ type Exporter struct {
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- up
 	ch <- procUp
+	ch <- cpuTotal
 	ch <- vsize
 	ch <- rss
+	ch <- startTime
 }
 
 // Collect fetches the stats from /proc/{pid}/stat and delivers them
@@ -118,8 +130,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
+		ch <- prometheus.MustNewConstMetric(cpuTotal, prometheus.CounterValue, stat.CPUTime(), pid, group)
 		ch <- prometheus.MustNewConstMetric(vsize, prometheus.GaugeValue, float64(stat.VirtualMemory()), pid, group)
 		ch <- prometheus.MustNewConstMetric(rss, prometheus.GaugeValue, float64(stat.ResidentMemory()), pid, group)
+		startTimeVal, err := stat.StartTime()
+		if err != nil {
+			level.Warn(e.logger).Log("msg", "Error `stat.StartTime()`", "err", err, "pid", pid)
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(startTime, prometheus.GaugeValue, startTimeVal, pid, group)
 	}
 
 	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, upVal)

@@ -127,6 +127,28 @@ openio_process_up{group="OPENIO,redis,0",pid="16"} 1
 `,
 		},
 		{
+			"process_cpu_seconds_total",
+			`# HELP openio_process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE openio_process_cpu_seconds_total counter
+openio_process_cpu_seconds_total{group="OPENIO,account,0",pid="1"} 10
+openio_process_cpu_seconds_total{group="OPENIO,beanstalkd,0",pid="2"} 20
+openio_process_cpu_seconds_total{group="OPENIO,conscience,0",pid="4"} 40
+openio_process_cpu_seconds_total{group="OPENIO,conscienceagent,0",pid="5"} 50
+openio_process_cpu_seconds_total{group="OPENIO,memcached,0",pid="6"} 60
+openio_process_cpu_seconds_total{group="OPENIO,meta0,0",pid="7"} 70
+openio_process_cpu_seconds_total{group="OPENIO,meta1,0",pid="8"} 80
+openio_process_cpu_seconds_total{group="OPENIO,meta2,0",pid="9"} 90
+openio_process_cpu_seconds_total{group="OPENIO,oio-blob-indexer,0",pid="10"} 100
+openio_process_cpu_seconds_total{group="OPENIO,oio-blob-rebuilder,0",pid="3"} 30
+openio_process_cpu_seconds_total{group="OPENIO,oio-event-agent,0",pid="11"} 110
+openio_process_cpu_seconds_total{group="OPENIO,oioproxy,0",pid="12"} 120
+openio_process_cpu_seconds_total{group="OPENIO,oioswift,0",pid="13"} 130
+openio_process_cpu_seconds_total{group="OPENIO,rawx,0",pid="14"} 140
+openio_process_cpu_seconds_total{group="OPENIO,rdir,1",pid="15"} 150
+openio_process_cpu_seconds_total{group="OPENIO,redis,0",pid="16"} 160
+`,
+		},
+		{
 			"process_virtual_memory_bytes",
 			`# HELP openio_process_virtual_memory_bytes Virtual memory size in bytes.
 # TYPE openio_process_virtual_memory_bytes gauge
@@ -168,6 +190,28 @@ openio_process_resident_memory_bytes{group="OPENIO,oioswift,0",pid="13"} 13000
 openio_process_resident_memory_bytes{group="OPENIO,rawx,0",pid="14"} 14000
 openio_process_resident_memory_bytes{group="OPENIO,rdir,1",pid="15"} 15000
 openio_process_resident_memory_bytes{group="OPENIO,redis,0",pid="16"} 16000
+`,
+		},
+		{
+			"process_start_time_seconds",
+			`# HELP openio_process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE openio_process_start_time_seconds gauge
+openio_process_start_time_seconds{group="OPENIO,account,0",pid="1"} 10000
+openio_process_start_time_seconds{group="OPENIO,beanstalkd,0",pid="2"} 20000
+openio_process_start_time_seconds{group="OPENIO,conscience,0",pid="4"} 40000
+openio_process_start_time_seconds{group="OPENIO,conscienceagent,0",pid="5"} 50000
+openio_process_start_time_seconds{group="OPENIO,memcached,0",pid="6"} 60000
+openio_process_start_time_seconds{group="OPENIO,meta0,0",pid="7"} 70000
+openio_process_start_time_seconds{group="OPENIO,meta1,0",pid="8"} 80000
+openio_process_start_time_seconds{group="OPENIO,meta2,0",pid="9"} 90000
+openio_process_start_time_seconds{group="OPENIO,oio-blob-indexer,0",pid="10"} 100000
+openio_process_start_time_seconds{group="OPENIO,oio-blob-rebuilder,0",pid="3"} 30000
+openio_process_start_time_seconds{group="OPENIO,oio-event-agent,0",pid="11"} 110000
+openio_process_start_time_seconds{group="OPENIO,oioproxy,0",pid="12"} 120000
+openio_process_start_time_seconds{group="OPENIO,oioswift,0",pid="13"} 130000
+openio_process_start_time_seconds{group="OPENIO,rawx,0",pid="14"} 140000
+openio_process_start_time_seconds{group="OPENIO,rdir,1",pid="15"} 150000
+openio_process_start_time_seconds{group="OPENIO,redis,0",pid="16"} 160000
 `,
 		},
 	}
